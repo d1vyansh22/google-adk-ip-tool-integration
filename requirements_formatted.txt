@@ -1,0 +1,78 @@
+# Updated requirements.txt for Google ADK IP Tool Integration
+
+# Google Agent Development Kit
+google-adk>=1.0.0
+
+# Existing dependencies from original project
+redis==6.2.0
+requests==2.32.4
+python-dotenv==1.1.0
+
+# API integrations
+ipinfo>=4.4.0
+shodan>=1.29.1
+
+# VirusTotal integration (multiple options)
+virustotal-python>=1.0.4
+# Alternative: vt-py>=0.18.0
+
+# Enhanced logging and monitoring
+structlog>=23.1.0
+
+# Development and testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-mock>=3.11.0
+coverage>=7.2.0
+
+# Optional: Enhanced CLI features
+rich>=13.4.0
+click>=8.1.0
+
+# Optional: Data serialization
+pydantic>=2.0.0
+
+# Core Python libraries (should be included but explicit for clarity)
+typing-extensions>=4.5.0
+asyncio-timeout>=4.0.0
+
+# Security and validation
+validators>=0.20.0
+
+# File handling for batch operations
+pandas>=2.0.0  # Optional: For advanced batch processing
+
+# JSON handling
+orjson>=3.9.0  # Optional: Faster JSON processing
+
+# HTTP client alternatives (if needed)
+httpx>=0.24.0  # Optional: Alternative to requests with async support
+
+# Time and date handling
+python-dateutil>=2.8.0
+
+# Configuration validation
+pyyaml>=6.0
+
+# Optional: Performance monitoring
+psutil>=5.9.0
+
+# Optional: Progress bars for batch operations
+tqdm>=4.65.0
+
+# Async support
+aiofiles>=23.1.0  # Optional: For async file operations
+
+# Documentation generation (development)
+sphinx>=7.0.0  # Optional: For documentation
+sphinx-rtd-theme>=1.2.0  # Optional: Documentation theme
+
+# Code quality (development)
+black>=23.0.0  # Optional: Code formatting
+isort>=5.12.0  # Optional: Import sorting
+flake8>=6.0.0  # Optional: Linting
+mypy>=1.4.0  # Optional: Type checking
+
+# Security scanning (development)
+bandit>=1.7.0  # Optional: Security linting
+safety>=2.3.0  # Optional: Dependency vulnerability scanning
