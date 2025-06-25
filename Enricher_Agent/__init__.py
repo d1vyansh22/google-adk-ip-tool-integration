@@ -27,4 +27,6 @@ enricher_agent_instance = EnricherAgent(config)
 enricher_agent = enricher_agent_instance.agent
 
 # Expose the agent instance for programmatic access
-__all__ = ['EnricherAgent', 'enricher_agent_instance', 'enricher_agent']
+__all__ = ['EnricherAgent', 'enricher_agent_instance', 'enricher_agent', 'root_agent']
+
+root_agent = enricher_agent  # Expose as required by the loader

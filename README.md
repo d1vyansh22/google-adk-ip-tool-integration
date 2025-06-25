@@ -150,7 +150,7 @@ LOG_LEVEL=INFO
 For an interactive web interface, use the ADK web command:
 
 ```bash
-adk web --agent main:enricher_agent
+adk web
 ```
 
 This launches a web interface (typically at http://127.0.0.1:8080) where you can:
