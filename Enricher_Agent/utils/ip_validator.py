@@ -1,8 +1,7 @@
 """
 IP Address Validation Utilities
 
-This module provides IP address validation functions based on the patterns
-from the existing ip_lookup_enhanced.py implementation.
+This module provides IP address validation functions
 """
 
 import re

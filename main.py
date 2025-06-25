@@ -3,8 +3,7 @@
 """
 Main Entry Point for Google ADK IP Enricher Agent
 
-This module provides the main entry point for the Google ADK agent,
-focusing purely on agent functionality without CLI tool patterns.
+This module provides the main entry point for the Google ADK agent
 """
 
 import logging

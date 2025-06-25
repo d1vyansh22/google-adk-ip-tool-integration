@@ -2,7 +2,6 @@
 Redis Cache Service for IP Intelligence Data
 
 This module provides Redis caching functionality for IP intelligence data from multiple sources.
-Based on the existing ip_lookup_enhanced.py implementation patterns.
 """
 
 import redis
