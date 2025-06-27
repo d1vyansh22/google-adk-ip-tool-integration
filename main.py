@@ -51,5 +51,5 @@ if __name__ == "__main__":
     print(f"Model: {Config.MODEL}")
     print(f"App Name: {Config.APP_NAME}")
     print("\nTo use this agent:")
-    print("1. adk web --agent main:enricher_agent")
+    print("1. adk web")
     print("2. Or import and use programmatically")
