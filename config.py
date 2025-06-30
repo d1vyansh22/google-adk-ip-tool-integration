@@ -32,6 +32,7 @@ class Config:
     IPINFO_API_KEY: Optional[str] = os.getenv('IPINFO_API_KEY')
     VIRUSTOTAL_API_KEY: Optional[str] = os.getenv('VIRUSTOTAL_API_KEY')
     SHODAN_API_KEY: Optional[str] = os.getenv('SHODAN_API_KEY')
+    ABUSEIPDB_API_KEY: Optional[str] = os.getenv('ABUSEIPDB_API_KEY')
 
     # API Configuration
     API_TIMEOUT: int = int(os.getenv('API_TIMEOUT', '10'))
@@ -58,6 +59,7 @@ class Config:
     ENABLE_IPINFO: bool = os.getenv('ENABLE_IPINFO', 'true').lower() == 'true'
     ENABLE_VIRUSTOTAL: bool = os.getenv('ENABLE_VIRUSTOTAL', 'true').lower() == 'true'
     ENABLE_SHODAN: bool = os.getenv('ENABLE_SHODAN', 'true').lower() == 'true'
+    ENABLE_ABUSEIPDB: bool = os.getenv('ENABLE_ABUSEIPDB', 'true').lower() == 'true'
 
     @classmethod
     def to_dict(cls) -> Dict[str, Any]:
@@ -67,6 +69,7 @@ class Config:
             'IPINFO_API_KEY': cls.IPINFO_API_KEY,
             'VIRUSTOTAL_API_KEY': cls.VIRUSTOTAL_API_KEY,
             'SHODAN_API_KEY': cls.SHODAN_API_KEY,
+            'ABUSEIPDB_API_KEY': cls.ABUSEIPDB_API_KEY,
             # API Configuration
             'API_TIMEOUT': cls.API_TIMEOUT,
             'MAX_RETRIES': cls.MAX_RETRIES,
@@ -87,7 +90,8 @@ class Config:
             'ENABLE_CACHE': cls.ENABLE_CACHE,
             'ENABLE_IPINFO': cls.ENABLE_IPINFO,
             'ENABLE_VIRUSTOTAL': cls.ENABLE_VIRUSTOTAL,
-            'ENABLE_SHODAN': cls.ENABLE_SHODAN
+            'ENABLE_SHODAN': cls.ENABLE_SHODAN,
+            'ENABLE_ABUSEIPDB': cls.ENABLE_ABUSEIPDB
         }
 
     @classmethod
@@ -110,7 +114,8 @@ class Config:
         api_keys = {
             'IPInfo': cls.IPINFO_API_KEY,
             'VirusTotal': cls.VIRUSTOTAL_API_KEY,
-            'Shodan': cls.SHODAN_API_KEY
+            'Shodan': cls.SHODAN_API_KEY,
+            'AbuseIPDB': cls.ABUSEIPDB_API_KEY
         }
 
         for service, api_key in api_keys.items():

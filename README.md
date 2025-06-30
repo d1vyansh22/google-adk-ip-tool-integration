@@ -22,10 +22,11 @@ This project demonstrates how to build effective security intelligence agents us
 
 ### IP Intelligence Features
 
-- **Multi-Source Intelligence**: Integrates three powerful threat intelligence platforms:
+- **Multi-Source Intelligence**: Integrates four powerful threat intelligence platforms:
   - **IPInfo**: Geolocation, ASN, organization, and privacy detection (VPN/proxy/Tor)
   - **VirusTotal**: Reputation checks against dozens of security vendors
   - **Shodan**: Port scanning, service enumeration, and vulnerability detection
+  - **AbuseIPDB**: Abuse confidence score, community abuse reports
 - **Comprehensive Analysis**:
   - **Threat Scoring**: Calculates overall risk (0-100 scale) based on combined intelligence
   - **Risk Classification**: Categorizes IPs as HIGH, MEDIUM, LOW, or MINIMAL risk
@@ -86,6 +87,7 @@ Before installing the system, ensure you have the following:
   - [IPInfo](https://ipinfo.io/)
   - [VirusTotal](https://www.virustotal.com/)
   - [Shodan](https://www.shodan.io/)
+  - [AbuseIPDB](https://www.abuseipdb.com/)
 - Google ADK access
 
 ## Installation
@@ -125,6 +127,7 @@ Create a `.env` file in the project root:
 IPINFO_API_KEY=your_ipinfo_api_key
 VIRUSTOTAL_API_KEY=your_virustotal_api_key
 SHODAN_API_KEY=your_shodan_api_key
+ABUSEIPDB_API_KEY=your_abuseipdb_api_key
 
 # Redis Configuration
 REDIS_HOST=localhost
@@ -172,6 +175,11 @@ agent = enricher_agent_instance.agent
 # For direct function tool usage
 from Enricher_Agent.tools.ipinfo_tool import check_ipinfo_tool
 result = check_ipinfo_tool("8.8.8.8")
+print(result)
+
+# Example: AbuseIPDB direct usage
+from Enricher_Agent.tools.abuseipdb_tool import check_abuseipdb_tool
+result = check_abuseipdb_tool("8.8.8.8")
 print(result)
 ```
 
@@ -238,7 +246,7 @@ The agent uses a sophisticated algorithm to calculate risk scores based on multi
 
 - **VirusTotal**: Malicious detection counts, vendor reputation
 - **Shodan**: Vulnerabilities, suspicious services, high-risk ports
-- **IPInfo**: Privacy concerns (VPN, Tor, proxy usage)
+- **AbuseIPDB**: Abuse confidence score, community abuse reports
 
 These factors are weighted and combined to produce an overall threat score (0-100).
 

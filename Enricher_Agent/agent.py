@@ -18,6 +18,7 @@ from .tools.virustotal_tool import check_virustotal_tool
 from .tools.shodan_tool import check_shodan_tool
 from .tools.cache_service import create_cache_service_from_config
 from .utils.ip_validator import validate_ip_address, should_analyze_ip
+from .tools.abuseipdb_tool import check_abuseipdb_tool
 
 logger = logging.getLogger(__name__)
 
@@ -60,6 +61,7 @@ class EnricherAgent:
         ipinfo_tool = FunctionTool(func=self._check_ipinfo_wrapper)
         virustotal_tool = FunctionTool(func=self._check_virustotal_wrapper)
         shodan_tool = FunctionTool(func=self._check_shodan_wrapper)
+        abuseipdb_tool = FunctionTool(func=self._check_abuseipdb_wrapper)
         comprehensive_analysis_tool = FunctionTool(func=self._comprehensive_ip_analysis)
         validate_ip_tool = FunctionTool(func=self._validate_ip_wrapper)
 
@@ -77,7 +79,8 @@ Your primary task is to analyze IP addresses to determine if they are malicious 
 2. check_ipinfo - Get geolocation and network information
 3. check_virustotal - Check for malicious activity reports from security vendors
 4. check_shodan - Analyze open ports, services, and vulnerabilities
-5. comprehensive_ip_analysis - Perform complete analysis using all sources
+5. check_abuseipdb - Check for abuse reports
+6. comprehensive_ip_analysis - Perform complete analysis using all sources
 
 **Analysis Process:**
 1. ALWAYS validate IP addresses first using validate_ip_address
@@ -108,6 +111,7 @@ Always provide comprehensive, evidence-based analysis with clear recommendations
                 ipinfo_tool,
                 virustotal_tool,
                 shodan_tool,
+                abuseipdb_tool,
                 comprehensive_analysis_tool
             ]
         )
@@ -143,6 +147,16 @@ Always provide comprehensive, evidence-based analysis with clear recommendations
                 "service": "shodan"
             }
         return check_shodan_tool(ip_address)
+
+    def _check_abuseipdb_wrapper(self, ip_address: str) -> Dict[str, Any]:
+        """Wrapper for AbuseIPDB tool with validation."""
+        if not validate_ip_address(ip_address):
+            return {
+                "status": "error",
+                "error_message": f"Invalid IP address format: {ip_address}",
+                "service": "abuseipdb"
+            }
+        return check_abuseipdb_tool(ip_address)
 
     def _validate_ip_wrapper(self, ip_address: str) -> Dict[str, Any]:
         """Wrapper for IP validation."""
@@ -194,15 +208,16 @@ Always provide comprehensive, evidence-based analysis with clear recommendations
         ipinfo_data = check_ipinfo_tool(ip_address)
         virustotal_data = check_virustotal_tool(ip_address)
         shodan_data = check_shodan_tool(ip_address)
+        abuseipdb_data = check_abuseipdb_tool(ip_address)
 
         # Analyze and combine results
-        analysis_result = self._analyze_combined_intelligence(ip_address, ipinfo_data, virustotal_data, shodan_data)
+        analysis_result = self._analyze_combined_intelligence(ip_address, ipinfo_data, virustotal_data, shodan_data, abuseipdb_data)
 
         logger.info(f"[-] Comprehensive analysis completed for {ip_address}")
         return analysis_result
 
     def _analyze_combined_intelligence(self, ip_address: str, ipinfo_data: Dict,
-                                     virustotal_data: Dict, shodan_data: Dict) -> Dict[str, Any]:
+                                     virustotal_data: Dict, shodan_data: Dict, abuseipdb_data: Dict) -> Dict[str, Any]:
         """
         Analyze and combine intelligence from all sources to provide threat assessment.
 
@@ -211,6 +226,7 @@ Always provide comprehensive, evidence-based analysis with clear recommendations
             ipinfo_data: Data from IPInfo
             virustotal_data: Data from VirusTotal
             shodan_data: Data from Shodan
+            abuseipdb_data: Data from AbuseIPDB
 
         Returns:
             dict: Combined analysis with threat assessment
@@ -261,6 +277,17 @@ Always provide comprehensive, evidence-based analysis with clear recommendations
                 if active_flags:
                     threat_indicators.append(f"IPInfo: Privacy concerns - {', '.join(active_flags)}")
 
+        # AbuseIPDB analysis
+        abuse_confidence = 0
+        if abuseipdb_data.get('status') == 'success':
+            abuse_confidence = abuseipdb_data.get('abuse_confidence_score', 0)
+            if abuse_confidence >= 50:
+                threat_score += 30
+                threat_indicators.append(f"AbuseIPDB: High abuse confidence score ({abuse_confidence})")
+            elif abuse_confidence > 0:
+                threat_score += min(abuse_confidence * 0.2, 10)
+                threat_indicators.append(f"AbuseIPDB: Some abuse reports (score {abuse_confidence})")
+
         # Cap threat score at 100
         threat_score = min(threat_score, 100)
 
@@ -294,15 +321,16 @@ Always provide comprehensive, evidence-based analysis with clear recommendations
             "intelligence_sources": {
                 "ipinfo": ipinfo_data,
                 "virustotal": virustotal_data,
-                "shodan": shodan_data
+                "shodan": shodan_data,
+                "abuseipdb": abuseipdb_data
             },
             "summary": self._generate_analysis_summary(ip_address, threat_score, risk_level,
-                                                     ipinfo_data, virustotal_data, shodan_data),
+                                                     ipinfo_data, virustotal_data, shodan_data, abuseipdb_data),
             "analysis_timestamp": self._get_timestamp()
         }
 
     def _generate_analysis_summary(self, ip: str, threat_score: float, risk_level: str,
-                                 ipinfo_data: Dict, virustotal_data: Dict, shodan_data: Dict) -> str:
+                                 ipinfo_data: Dict, virustotal_data: Dict, shodan_data: Dict, abuseipdb_data: Dict) -> str:
         """Generate a human-readable summary of the analysis."""
         # Location from IPInfo
         location = "Unknown location"
@@ -332,6 +360,13 @@ Always provide comprehensive, evidence-based analysis with clear recommendations
             if vuln_count > 0:
                 summary += f", {vuln_count} vulnerabilities found"
             summary += ". "
+
+        # AbuseIPDB summary
+        if abuseipdb_data.get('status') == 'success':
+            abuse_score = abuseipdb_data.get('abuse_confidence_score', 0)
+            total_reports = abuseipdb_data.get('total_reports', 0)
+            if abuse_score > 0:
+                summary += f"AbuseIPDB: Abuse confidence score {abuse_score} with {total_reports} reports. "
 
         return summary
 

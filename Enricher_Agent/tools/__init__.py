@@ -8,6 +8,7 @@ from .cache_service import RedisCacheService
 from .ipinfo_tool import get_ipinfo_data
 from .virustotal_tool import get_virustotal_data
 from .shodan_tool import get_shodan_data
+from .abuseipdb_tool import get_abuseipdb_data, check_abuseipdb_tool
 
 # Define public interface (for 'from tools import *')
 __all__ = [
