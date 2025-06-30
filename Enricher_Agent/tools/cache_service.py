@@ -51,10 +51,10 @@ class RedisCacheService:
             # Test connection
             self.redis_client.ping()
             self.redis_available = True
-            logger.info(f"✅ Redis connected successfully at {host}:{port}")
+            logger.info(f"[-] Redis connected successfully at {host}:{port}")
             
         except redis.RedisError as e:
-            logger.error(f"❌ Redis unavailable: {e}")
+            logger.error(f"[x] Redis unavailable: {e}")
             self.redis_available = False
             self.redis_client = None
             
@@ -92,16 +92,16 @@ class RedisCacheService:
             cached: Optional[str] = cast(Optional[str], self.redis_client.get(key))
             if cached:
                 self.metrics['hits'] += 1
-                logger.debug(f"🎯 Cache HIT for {service_name}:{ip_address}")
+                logger.debug(f"[-] Cache HIT for {service_name}:{ip_address}")
                 return json.loads(cached)
             else:
                 self.metrics['misses'] += 1
-                logger.debug(f"❌ Cache MISS for {service_name}:{ip_address}")
+                logger.debug(f"[x] Cache MISS for {service_name}:{ip_address}")
                 return None
                 
         except (redis.RedisError, json.JSONDecodeError) as e:
             self.metrics['failures'] += 1
-            logger.warning(f"⚠️ Redis cache error for {key}: {e}")
+            logger.warning(f"[!] Redis cache error for {key}: {e}")
             return None
     
     def cache_data(self, ip_address: str, service_name: str, data: Dict[str, Any]) -> bool:
@@ -140,7 +140,7 @@ class RedisCacheService:
             
             if success:
                 self.metrics['stores'] += 1
-                logger.debug(f"💾 Cached data for {service_name}:{ip_address}")
+                logger.debug(f"[-] Cached data for {service_name}:{ip_address}")
                 return True
             else:
                 self.metrics['failures'] += 1
@@ -148,7 +148,7 @@ class RedisCacheService:
                 
         except redis.RedisError as e:
             self.metrics['failures'] += 1
-            logger.warning(f"⚠️ Redis store error for {key}: {e}")
+            logger.warning(f"[!] Redis store error for {key}: {e}")
             return False
     
     def is_cached(self, ip_address: str, service_name: str) -> bool:
@@ -167,13 +167,13 @@ class RedisCacheService:
             
         key = f"{service_name}:{ip_address}"
         if self.redis_client is None:
-            logger.warning("⚠️ Redis client is not available when checking cache for %s", key)
+            logger.warning("[!] Redis client is not available when checking cache for %s", key)
             return False
         try:
             exists = self.redis_client.exists(key)
             return bool(exists)
         except redis.RedisError as e:
-            logger.warning(f"⚠️ Redis exists check error for {key}: {e}")
+            logger.warning(f"[!] Redis exists check error for {key}: {e}")
             return False
         
 
@@ -233,7 +233,7 @@ class RedisCacheService:
             return health_info
             
         except (redis.RedisError, Exception) as e:
-            logger.warning(f"Redis health check error: {e}")
+            logger.warning(f"[x] Redis health check error: {e}")
             return {
                 'status': 'error',
                 'connection': False,

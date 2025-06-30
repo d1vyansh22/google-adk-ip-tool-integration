@@ -31,10 +31,10 @@ def get_enricher_agent() -> EnricherAgent:
     # Initialize and return agent
     try:
         agent = EnricherAgent(Config.to_dict())
-        logger.info("✅ EnricherAgent initialized successfully")
+        logger.info("[-] EnricherAgent initialized successfully")
         return agent
     except Exception as e:
-        logger.error(f"❌ Failed to initialize agent: {e}")
+        logger.error(f"[x] Failed to initialize agent: {e}")
         raise
 
 # Create global agent instance for ADK usage

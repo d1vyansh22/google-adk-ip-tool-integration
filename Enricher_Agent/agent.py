@@ -51,7 +51,7 @@ class EnricherAgent:
             session_service=self.session_service
         )
 
-        logger.info("✅ EnricherAgent initialized successfully")
+        logger.info("[-] EnricherAgent initialized successfully")
 
     def _create_agent(self) -> Agent:
         """Create the main ADK agent with all tools configured."""
@@ -190,7 +190,7 @@ Always provide comprehensive, evidence-based analysis with clear recommendations
             }
 
         # Gather data from all sources
-        logger.info(f"🔍 Starting comprehensive analysis for {ip_address}")
+        logger.info(f"[-] Starting comprehensive analysis for {ip_address}")
         ipinfo_data = check_ipinfo_tool(ip_address)
         virustotal_data = check_virustotal_tool(ip_address)
         shodan_data = check_shodan_tool(ip_address)
@@ -198,7 +198,7 @@ Always provide comprehensive, evidence-based analysis with clear recommendations
         # Analyze and combine results
         analysis_result = self._analyze_combined_intelligence(ip_address, ipinfo_data, virustotal_data, shodan_data)
 
-        logger.info(f"✅ Comprehensive analysis completed for {ip_address}")
+        logger.info(f"[-] Comprehensive analysis completed for {ip_address}")
         return analysis_result
 
     def _analyze_combined_intelligence(self, ip_address: str, ipinfo_data: Dict,
@@ -389,7 +389,7 @@ Always provide comprehensive, evidence-based analysis with clear recommendations
                 "message": "Redis client not accessible."
             }
         except Exception as e:
-            logger.error(f"❌ Error during Redis cache clear: {e}")
+            logger.error(f"[x] Error during Redis cache clear: {e}")
             return {
                 "success": False,
                 "message": f"Error clearing Redis cache: {str(e)}"

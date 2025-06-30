@@ -38,14 +38,14 @@ def get_shodan_data(ip_address: str, api_key: str,
     if cache_service and cache_service.is_available():
         cached_data = cache_service.get_cached_data(ip_address, service_name)
         if cached_data:
-            logger.info(f"🎯 Retrieved {ip_address} from Shodan cache")
+            logger.info(f"[-] Retrieved {ip_address} from Shodan cache")
             return cached_data
     
     # Import shodan library
     try:
         import shodan
     except ImportError:
-        logger.error("❌ Shodan library not installed. Please install with: pip install shodan")
+        logger.error("[x] Shodan library not installed. Please install with: pip install shodan")
         return {
             "ip": ip_address,
             "error": "Shodan library not installed",
@@ -60,7 +60,7 @@ def get_shodan_data(ip_address: str, api_key: str,
             # Initialize Shodan API
             api = shodan.Shodan(api_key)
             
-            logger.debug(f"🔍 Shodan API call attempt {attempt + 1} for {ip_address}")
+            logger.debug(f"[-] Shodan API call attempt {attempt + 1} for {ip_address}")
             start_time = time.time()
             
             # Make API request
@@ -148,14 +148,14 @@ def get_shodan_data(ip_address: str, api_key: str,
             if cache_service and cache_service.is_available():
                 cache_service.cache_data(ip_address, service_name, result)
             
-            logger.info(f"✅ Shodan lookup successful for {ip_address} ({elapsed_time:.3f}s)")
+            logger.info(f"[-] Shodan lookup successful for {ip_address} ({elapsed_time:.3f}s)")
             return result
             
         except shodan.APIError as e:
             error_msg = str(e).lower()
             
             if "no information available" in error_msg or "not found" in error_msg:
-                logger.warning(f"⚠️ Shodan: No data found for IP {ip_address}")
+                logger.warning(f"[!] Shodan: No data found for IP {ip_address}")
                 return {
                     "ip": ip_address,
                     "message": "No information available for this IP address in Shodan",
@@ -169,7 +169,7 @@ def get_shodan_data(ip_address: str, api_key: str,
                     "status": "no_data"
                 }
             elif "api key" in error_msg or "unauthorized" in error_msg:
-                logger.error(f"❌ Shodan: Authentication failed")
+                logger.error(f"[x] Shodan: Authentication failed")
                 return {
                     "ip": ip_address,
                     "error": "Shodan API authentication failed. Check your API key.",
@@ -178,14 +178,14 @@ def get_shodan_data(ip_address: str, api_key: str,
                     "status": "auth_error"
                 }
             elif "rate limit" in error_msg or "quota" in error_msg:
-                logger.warning(f"⚠️ Shodan rate limit exceeded. Attempt {attempt + 1}/{max_retries}")
+                logger.warning(f"[!] Shodan rate limit exceeded. Attempt {attempt + 1}/{max_retries}")
                 if attempt < max_retries - 1:
                     wait_time = 2 ** attempt
-                    logger.info(f"⏳ Waiting {wait_time} seconds before retry...")
+                    logger.info(f"[-] Waiting {wait_time} seconds before retry...")
                     time.sleep(wait_time)
                     continue
             else:
-                logger.error(f"❌ Shodan API error: {e}")
+                logger.error(f"[x] Shodan API error: {e}")
                 if attempt == max_retries - 1:
                     return {
                         "ip": ip_address,
@@ -196,7 +196,7 @@ def get_shodan_data(ip_address: str, api_key: str,
                     }
                     
         except Exception as e:
-            logger.error(f"❌ Unexpected Shodan error: {e}")
+            logger.error(f"[x] Unexpected Shodan error: {e}")
             return {
                 "ip": ip_address,
                 "error": f"Unexpected error during Shodan lookup: {str(e)}",
@@ -208,11 +208,11 @@ def get_shodan_data(ip_address: str, api_key: str,
         # Wait before retry
         if attempt < max_retries - 1:
             wait_time = 2 ** attempt
-            logger.info(f"⏳ Retrying Shodan in {wait_time} seconds...")
+            logger.info(f"[-] Retrying Shodan in {wait_time} seconds...")
             time.sleep(wait_time)
     
     # If we get here, all retries failed
-    logger.error(f"❌ Shodan lookup failed for {ip_address} after {max_retries} attempts")
+    logger.error(f"[x] Shodan lookup failed for {ip_address} after {max_retries} attempts")
     return {
         "ip": ip_address,
         "error": f"Shodan lookup failed after {max_retries} attempts",

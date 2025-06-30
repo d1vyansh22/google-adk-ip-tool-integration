@@ -39,7 +39,7 @@ def get_virustotal_data(ip_address: str, api_key: str,
     if cache_service and cache_service.is_available():
         cached_data = cache_service.get_cached_data(ip_address, service_name)
         if cached_data:
-            logger.info(f"🎯 Retrieved {ip_address} from VirusTotal cache")
+            logger.info(f"[-] Retrieved {ip_address} from VirusTotal cache")
             return cached_data
     
     # API call logic with retries
@@ -57,7 +57,7 @@ def get_virustotal_data(ip_address: str, api_key: str,
             }
             
             # Make API request
-            logger.debug(f"🛡️ VirusTotal API call attempt {attempt + 1} for {ip_address}")
+            logger.debug(f"[-] VirusTotal API call attempt {attempt + 1} for {ip_address}")
             start_time = time.time()
             
             response = requests.get(url, headers=headers, timeout=timeout)
@@ -130,18 +130,18 @@ def get_virustotal_data(ip_address: str, api_key: str,
                 if cache_service and cache_service.is_available():
                     cache_service.cache_data(ip_address, service_name, result)
                 
-                logger.info(f"✅ VirusTotal lookup successful for {ip_address} ({elapsed_time:.3f}s)")
+                logger.info(f"[-] VirusTotal lookup successful for {ip_address} ({elapsed_time:.3f}s)")
                 return result
                 
             elif response.status_code == 429:
-                logger.warning(f"⚠️ VirusTotal rate limit exceeded. Attempt {attempt + 1}/{max_retries}")
+                logger.warning(f"[x] VirusTotal rate limit exceeded. Attempt {attempt + 1}/{max_retries}")
                 if attempt < max_retries - 1:
                     wait_time = 2 ** attempt
-                    logger.info(f"⏳ Waiting {wait_time} seconds before retry...")
+                    logger.info(f"[-] Waiting {wait_time} seconds before retry...")
                     time.sleep(wait_time)
                     
             elif response.status_code == 404:
-                logger.warning(f"⚠️ VirusTotal: No data found for IP {ip_address}")
+                logger.warning(f"[x] VirusTotal: No data found for IP {ip_address}")
                 return {
                     "ip": ip_address,
                     "message": "No analysis data found for this IP address",
@@ -153,7 +153,7 @@ def get_virustotal_data(ip_address: str, api_key: str,
                 }
                 
             elif response.status_code == 401:
-                logger.error(f"❌ VirusTotal: Authentication failed")
+                logger.error(f"[x] VirusTotal: Authentication failed")
                 return {
                     "ip": ip_address,
                     "error": "VirusTotal API authentication failed. Check your API key.",
@@ -163,7 +163,7 @@ def get_virustotal_data(ip_address: str, api_key: str,
                 }
                 
             else:
-                logger.error(f"❌ VirusTotal HTTP Error {response.status_code}")
+                logger.error(f"[x] VirusTotal HTTP Error {response.status_code}")
                 if attempt == max_retries - 1:
                     return {
                         "ip": ip_address,
@@ -174,7 +174,7 @@ def get_virustotal_data(ip_address: str, api_key: str,
                     }
                     
         except requests.exceptions.Timeout:
-            logger.error(f"⏰ VirusTotal timeout on attempt {attempt + 1}/{max_retries}")
+            logger.error(f"[-] VirusTotal timeout on attempt {attempt + 1}/{max_retries}")
             if attempt == max_retries - 1:
                 return {
                     "ip": ip_address,
@@ -185,7 +185,7 @@ def get_virustotal_data(ip_address: str, api_key: str,
                 }
                 
         except requests.exceptions.ConnectionError:
-            logger.error(f"🌐 VirusTotal connection error on attempt {attempt + 1}/{max_retries}")
+            logger.error(f"[-] VirusTotal connection error on attempt {attempt + 1}/{max_retries}")
             if attempt == max_retries - 1:
                 return {
                     "ip": ip_address,
@@ -196,7 +196,7 @@ def get_virustotal_data(ip_address: str, api_key: str,
                 }
                 
         except Exception as e:
-            logger.error(f"❌ Unexpected VirusTotal error: {e}")
+            logger.error(f"[x] Unexpected VirusTotal error: {e}")
             return {
                 "ip": ip_address,
                 "error": f"Unexpected error during VirusTotal lookup: {str(e)}",
@@ -208,11 +208,11 @@ def get_virustotal_data(ip_address: str, api_key: str,
         # Wait before retry
         if attempt < max_retries - 1:
             wait_time = 2 ** attempt
-            logger.info(f"⏳ Retrying VirusTotal in {wait_time} seconds...")
+            logger.info(f"[-] Retrying VirusTotal in {wait_time} seconds...")
             time.sleep(wait_time)
     
     # If we get here, all retries failed
-    logger.error(f"❌ VirusTotal lookup failed for {ip_address} after {max_retries} attempts")
+    logger.error(f"[x] VirusTotal lookup failed for {ip_address} after {max_retries} attempts")
     return {
         "ip": ip_address,
         "error": f"VirusTotal lookup failed after {max_retries} attempts",

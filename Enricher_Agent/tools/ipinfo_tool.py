@@ -35,7 +35,7 @@ def get_ipinfo_data(ip_address: str, api_key: Optional[str] = None,
     if cache_service and cache_service.is_available():
         cached_data = cache_service.get_cached_data(ip_address, service_name)
         if cached_data:
-            logger.info(f"🎯 Retrieved {ip_address} from cache")
+            logger.info(f"[-] Retrieved {ip_address} from cache")
             return cached_data
 
     # API call logic with retries
@@ -51,7 +51,7 @@ def get_ipinfo_data(ip_address: str, api_key: Optional[str] = None,
                 headers['Authorization'] = f'Bearer {api_key}'
 
             # Make API request
-            logger.debug(f"🌐 IPInfo API call attempt {attempt + 1} for {ip_address}")
+            logger.debug(f"[-] IPInfo API call attempt {attempt + 1} for {ip_address}")
             start_time = time.time()
             response = requests.get(url, headers=headers, timeout=timeout)
             elapsed_time = time.time() - start_time
@@ -99,18 +99,18 @@ def get_ipinfo_data(ip_address: str, api_key: Optional[str] = None,
                 if cache_service and cache_service.is_available():
                     cache_service.cache_data(ip_address, service_name, result)
 
-                logger.info(f"✅ IPInfo lookup successful for {ip_address} ({elapsed_time:.3f}s)")
+                logger.info(f"[-] IPInfo lookup successful for {ip_address} ({elapsed_time:.3f}s)")
                 return result
 
             elif response.status_code == 429:
-                logger.warning(f"⚠️ IPInfo rate limit exceeded. Attempt {attempt + 1}/{max_retries}")
+                logger.warning(f"[x] IPInfo rate limit exceeded. Attempt {attempt + 1}/{max_retries}")
                 if attempt < max_retries - 1:
                     wait_time = 2 ** attempt
-                    logger.info(f"⏳ Waiting {wait_time} seconds before retry...")
+                    logger.info(f"[-] Waiting {wait_time} seconds before retry...")
                     time.sleep(wait_time)
 
             elif response.status_code == 404:
-                logger.error(f"❌ IPInfo: IP address not found: {ip_address}")
+                logger.error(f"[x] IPInfo: IP address not found: {ip_address}")
                 return {
                     "ip": ip_address,
                     "error": f"IP address not found in IPInfo database",
@@ -120,7 +120,7 @@ def get_ipinfo_data(ip_address: str, api_key: Optional[str] = None,
                 }
 
             elif response.status_code == 401:
-                logger.error(f"❌ IPInfo: Authentication failed")
+                logger.error(f"[x] IPInfo: Authentication failed")
                 return {
                     "ip": ip_address,
                     "error": "IPInfo API authentication failed. Check your API key.",
@@ -130,7 +130,7 @@ def get_ipinfo_data(ip_address: str, api_key: Optional[str] = None,
                 }
 
             else:
-                logger.error(f"❌ IPInfo HTTP Error {response.status_code}: {response.text}")
+                logger.error(f"[x] IPInfo HTTP Error {response.status_code}: {response.text}")
                 if attempt == max_retries - 1:
                     return {
                         "ip": ip_address,
@@ -141,7 +141,7 @@ def get_ipinfo_data(ip_address: str, api_key: Optional[str] = None,
                     }
 
         except requests.exceptions.Timeout:
-            logger.error(f"⏰ IPInfo timeout on attempt {attempt + 1}/{max_retries}")
+            logger.error(f"[-] IPInfo timeout on attempt {attempt + 1}/{max_retries}")
             if attempt == max_retries - 1:
                 return {
                     "ip": ip_address,
@@ -152,7 +152,7 @@ def get_ipinfo_data(ip_address: str, api_key: Optional[str] = None,
                 }
 
         except requests.exceptions.ConnectionError:
-            logger.error(f"🌐 IPInfo connection error on attempt {attempt + 1}/{max_retries}")
+            logger.error(f"[-] IPInfo connection error on attempt {attempt + 1}/{max_retries}")
             if attempt == max_retries - 1:
                 return {
                     "ip": ip_address,
@@ -163,7 +163,7 @@ def get_ipinfo_data(ip_address: str, api_key: Optional[str] = None,
                 }
 
         except Exception as e:
-            logger.error(f"❌ Unexpected IPInfo error: {e}")
+            logger.error(f"[x] Unexpected IPInfo error: {e}")
             return {
                 "ip": ip_address,
                 "error": f"Unexpected error during IPInfo lookup: {str(e)}",
@@ -175,11 +175,11 @@ def get_ipinfo_data(ip_address: str, api_key: Optional[str] = None,
         # Wait before retry (exponential backoff)
         if attempt < max_retries - 1:
             wait_time = 2 ** attempt
-            logger.info(f"⏳ Retrying IPInfo in {wait_time} seconds...")
+            logger.info(f"[-] Retrying IPInfo in {wait_time} seconds...")
             time.sleep(wait_time)
 
     # If we get here, all retries failed
-    logger.error(f"❌ IPInfo lookup failed for {ip_address} after {max_retries} attempts")
+    logger.error(f"[x] IPInfo lookup failed for {ip_address} after {max_retries} attempts")
     return {
         "ip": ip_address,
         "error": f"IPInfo lookup failed after {max_retries} attempts",
